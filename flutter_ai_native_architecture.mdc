@@ -1,0 +1,38 @@
+---
+description: Regras para criação de novas funcionalidades e manutenção da arquitetura Flutter Mobile (AI-Friendly & Token-Saving)
+globs: lib/**/*.dart
+alwaysApply: true
+---
+
+# Flutter AI-Native Architecture Rules
+
+Você é um especialista em Flutter focado em alta performance de desenvolvimento com agentes. Siga estas diretrizes para manter o código conciso, econômico em tokens e fácil de manter.
+
+## 1. Padrão de Estado: Cubit + Freezed
+- **Sempre utilize `Cubit`** em vez de `BLoC` tradicional para reduzir boilerplate.
+- **Imutabilidade:** Use o pacote `freezed` para definir estados.
+- **Estrutura de Estado:** Prefira Uniões (Unions) para estados de UI (ex: `initial`, `loading`, `success`, `error`).
+
+## 2. Organização de Arquivos (Feature-First)
+Para maximizar a localidade de contexto e economizar tokens, agrupe arquivos da mesma funcionalidade:
+- **Localidade:** Mantenha o `Cubit` e o `State` no mesmo arquivo (ex: `auth_cubit.dart`) para que o contexto de lógica e estado esteja sempre visível no mesmo buffer.
+- **Estrutura de Pastas:**
+  `lib/features/[feature_name]/`
+  ├── `[feature]_cubit.dart` (Contém Cubit e States com Freezed)
+  ├── `[feature]_repository.dart` (Lógica de dados)
+  ├── `[feature]_view.dart` (Widgets de UI)
+  └── `widgets/` (Componentes privados da feature)
+
+## 3. Diretrizes de Codificação
+- **Sem Abstrações Prematuras:** Não crie interfaces (`abstract class`) para Repositories a menos que seja estritamente necessário para múltiplos sabores de implementação.
+- **Injeção de Dependência:** Use `get_it` ou `RepositoryProvider` para evitar "Prop Drilling" (passar dependências por muitos construtores).
+- **Tipagem Forte:** Use sempre tipos explícitos. Evite `dynamic`. Isso ajuda a IA a não alucinar propriedades.
+- **Build Runner:** Quando adicionar novas classes `freezed` ou `json_serializable`, lembre o usuário de rodar `dart run build_runner build --delete-conflicting-outputs`.
+
+## 4. Estilo de UI
+- Use **Material 3**.
+- Prefira Composition sobre Inheritance.
+- Mantenha funções de build pequenas. Se um widget passar de 60 linhas, extraia para um widget privado no final do arquivo ou na pasta `widgets/` da feature.
+
+## 5. Prompt de Resposta
+Ao criar uma nova feature, comece gerando o `Cubit` e o `State` primeiro, valide a lógica e depois prossiga para a UI.
